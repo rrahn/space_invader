@@ -8,6 +8,7 @@ class BulletSettings():
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = 60, 60, 60
+        self.bullets_allowed = 3
 
 class ShipSettings():
     """A class to store all settings for the ship."""
