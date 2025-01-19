@@ -91,7 +91,7 @@ def get_number_rows(settings, ship_height, alien_height):
         int: The number of rows of aliens that fit on the screen.
     """
     available_space_y = settings.screen_height - (3 * alien_height) - ship_height
-    number_rows = int(available_space_y / (2 * alien_height))
+    number_rows = min(int(available_space_y / (2 * alien_height)), 4)
     return number_rows
 
 def create_alien(settings, screen, aliens, alien_number, row_number):
