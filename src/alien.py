@@ -8,7 +8,7 @@ class Alien(Sprite):
         """Initialize the alien and set its starting position."""
         super().__init__()
         self.screen = screen
-        self.settings = settings
+        self.settings = settings.alien_settings
 
         # Load and scale the alien image
         self.image = pygame.image.load('images/Space-invaders-top-alien.png')
@@ -25,3 +25,14 @@ class Alien(Sprite):
     def draw(self):
         """Draw the alien at its current location."""
         self.screen.blit(self.image, self.rect)
+
+    def check_edges(self):
+        """Return True if alien is at the edge of the screen."""
+        screen_rect = self.screen.get_rect()
+        if self.rect.right >= screen_rect.right or self.rect.left <= 0:
+            return True
+
+    def update(self):
+        """Move the alien to the right."""
+        self.x += (self.settings.alien_speed_factor * self.settings.fleet_direction)
+        self.rect.x = self.x

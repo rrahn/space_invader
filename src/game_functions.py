@@ -1,3 +1,4 @@
+from time import sleep
 import pygame
 import sys
 
@@ -143,7 +144,7 @@ def update_screen(screen, settings, ship, aliens, bullets):
     aliens.draw(screen)
     pygame.display.flip()
 
-def update_bullets(bullets):
+def update_bullets(settings, screen, aliens, bullets):
     """
     Update the positions of all bullets and remove bullets that have gone off-screen.
     Args:
@@ -152,3 +153,85 @@ def update_bullets(bullets):
     bullets.update()
 
     [bullets.remove(bullet) for bullet in bullets.copy() if bullet.rect.bottom <= 0]
+    check_bullet_alien_collisions(settings, screen, aliens, bullets)
+
+def check_bullet_alien_collisions(settings, screen, aliens, bullets):
+    pygame.sprite.groupcollide(bullets, aliens, True, True)
+
+    if len(aliens) == 0:
+        bullets.empty()
+        create_fleet(settings, screen, aliens)
+
+def update_aliens(settings, stats, screen, ship, aliens, bullets):
+    """
+    Update the positions of all aliens in the fleet.
+    Args:
+        aliens (pygame.sprite.Group): A group of alien sprites to be updated.
+    """
+    check_fleet_edges(settings, aliens)
+    aliens.update()
+
+    if pygame.sprite.spritecollideany(ship, aliens):
+        ship_hit(settings, stats, screen, ship, aliens, bullets)
+
+    check_aliens_bottom(settings, stats, screen, ship, aliens, bullets)
+
+def check_fleet_edges(settings, aliens):
+    """
+    Respond appropriately if any aliens have reached an edge.
+    Args:
+        aliens (pygame.sprite.Group): A group of alien sprites to be checked.
+    """
+    for alien in aliens.sprites():
+        if alien.check_edges():
+            change_fleet_direction(settings, aliens)
+            break
+
+def change_fleet_direction(settings, aliens):
+    """
+    Drop the entire fleet and change the fleet's direction.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        aliens (pygame.sprite.Group): A group of alien sprites to be updated.
+    """
+    for alien in aliens.sprites():
+        alien.rect.y += settings.alien_settings.fleet_drop_speed
+    settings.alien_settings.fleet_direction *= -1
+
+def ship_hit(settings, stats, screen, ship, aliens, bullets):
+    """
+    Respond to the ship being hit by an alien.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        stats (GameStats): An instance of the GameStats class containing game statistics.
+        screen (pygame.Surface): The surface on which to draw the game elements.
+        ship (Ship): An instance of the Ship class representing the player's ship.
+        aliens (pygame.sprite.Group): A group of alien sprites to be updated.
+        bullets (pygame.sprite.Group): A group of bullet sprites to be updated.
+    """
+    if stats.ships_left > 0:
+        stats.ships_left -= 1
+        aliens.empty()
+        bullets.empty()
+        create_fleet(settings, screen, aliens)
+        ship.center_ship()
+        sleep(0.5)
+    else:
+        stats.game_active = False
+
+def check_aliens_bottom(settings, stats, screen, ship, aliens, bullets):
+    """
+    Check if any aliens have reached the bottom of the screen.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        stats (GameStats): An instance of the GameStats class containing game statistics.
+        screen (pygame.Surface): The surface on which to draw the game elements.
+        ship (Ship): An instance of the Ship class representing the player's ship.
+        aliens (pygame.sprite.Group): A group of alien sprites to be updated.
+        bullets (pygame.sprite.Group): A group of bullet sprites to be updated.
+    """
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            ship_hit(settings, stats, screen, ship, aliens, bullets)
+            break
