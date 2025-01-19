@@ -3,7 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class BulletSettings():
     """A class to store all settings for bullets."""
-    bullet_speed_factor = 1
+    bullet_speed_factor = 3
     bullet_width = 3
     bullet_height = 15
     bullet_color = 60, 60, 60
@@ -14,6 +14,15 @@ class ShipSettings():
     """A class to store all settings for the ship."""
 
     ship_speed_factor = 1.5
+    ship_limit = 3
+
+@dataclass
+class AlienSettings():
+    """A class to store all settings for the aliens."""
+
+    alien_speed_factor = 0.8
+    fleet_drop_speed = 10
+    fleet_direction = 1
 
 @dataclass
 class Settings():
@@ -29,3 +38,6 @@ class Settings():
 
     # Bullet settings
     bullet_settings = BulletSettings()
+
+    # Alien settings
+    alien_settings = AlienSettings()
