@@ -1,7 +1,5 @@
-import sys
 import pygame
 
-from alien import Alien
 from pygame.sprite import Group
 from settings import Settings
 from ship import Ship
@@ -21,8 +19,7 @@ def run_app():
     # Group of aliens
     aliens = Group()
 
-    # Create alien
-    alien = Alien(si_settings, screen)
+    # Create alien fleet
     gf.create_fleet(si_settings, screen, aliens)
 
     while True:
