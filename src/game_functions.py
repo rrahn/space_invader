@@ -18,6 +18,8 @@ def on_press_key(event, screen, settings, ship, bullets):
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
         fire_bullet(screen, settings.bullet_settings, ship, bullets)
+    elif event.key == pygame.K_q:
+        sys.exit()
 
 def fire_bullet(screen, settings, ship, bullets):
     """
