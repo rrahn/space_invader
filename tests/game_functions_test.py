@@ -5,6 +5,7 @@ from src.game_functions import get_number_rows
 
 @dataclass
 class TestSettings():
+    __test__ = False
     screen_height = 600
 
 def test_get_number_rows():
