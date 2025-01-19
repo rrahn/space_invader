@@ -1,6 +1,7 @@
-import sys
 import pygame
+import sys
 
+from alien import Alien
 from bullet import Bullet
 
 def on_press_key(event, screen, settings, ship, bullets):
@@ -30,7 +31,6 @@ def fire_bullet(screen, settings, ship, bullets):
         ship (Ship): The ship object that will fire the bullet.
         bullets (pygame.sprite.Group): The group of bullets currently active in the game.
     """
-
     if (len(bullets) < settings.bullets_allowed):
         new_bullet = Bullet(settings, screen, ship)
         bullets.add(new_bullet)
@@ -67,18 +67,79 @@ def check_events(screen, settings, ship, bullets):
         elif event.type == pygame.KEYUP:
             on_release_key(event, ship)
 
-def update_screen(screen, settings, ship, bullets):
+def get_number_aliens_x(settings, alien_width):
+    """
+    Determine the number of aliens that fit in a row.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        alien_width (int): The width of an alien in pixels.
+    Returns:
+        int: The number of aliens that fit in a row.
+    """
+    available_space_x = settings.screen_width - 2 * alien_width
+    number_aliens_x = int(available_space_x / (2 * alien_width))
+    return number_aliens_x
+
+def get_number_rows(settings, ship_height, alien_height):
+    """
+    Determine the number of rows of aliens that fit on the screen.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        ship_height (int): The height of the ship in pixels.
+        alien_height (int): The height of an alien in pixels.
+    Returns:
+        int: The number of rows of aliens that fit on the screen.
+    """
+    available_space_y = settings.screen_height - (3 * alien_height) - ship_height
+    number_rows = int(available_space_y / (2 * alien_height))
+    return number_rows
+
+def create_alien(settings, screen, aliens, alien_number, row_number):
+    """
+    Create an alien and place it in the row.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        screen (pygame.Surface): The surface on which to draw the game elements.
+        aliens (pygame.sprite.Group): The group of aliens to be created.
+        alien_number (int): The position of the alien in the row.
+        row_number (int): The row number in which the alien is placed.
+    """
+    alien = Alien(settings, screen)
+    alien_width = alien.rect.width
+    alien.x = alien_width + 2 * alien_width * alien_number
+    alien.rect.x = alien.x
+    alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+    aliens.add(alien)
+
+def create_fleet(settings, screen, aliens):
+    """
+    Create a fleet of aliens.
+    Args:
+        settings (Settings): An instance of the Settings class containing game settings.
+        screen (pygame.Surface): The surface on which to draw the game elements.
+        aliens (pygame.sprite.Group): The group of aliens to be created.
+    """
+    alien = Alien(settings, screen)
+    number_aliens_x = get_number_aliens_x(settings, alien.rect.width)
+    number_rows = get_number_rows(settings, alien.rect.height, alien.rect.height)
+    [create_alien(settings, screen, aliens, alien_number, row_number)
+        for row_number in range(number_rows)
+            for alien_number in range(number_aliens_x)]
+
+def update_screen(screen, settings, ship, aliens, bullets):
     """
     Update images on the screen and flip to the new screen.
     Args:
         screen (pygame.Surface): The surface on which to draw the game elements.
         settings (Settings): An instance of the Settings class containing game settings.
         ship (Ship): An instance of the Ship class representing the player's ship.
+        aliens (pygame.sprite.Group): The group of aliens.
         bullets (pygame.sprite.Group): The group of bullets currently active in the game.
     """
     screen.fill(settings.bg_color)
     [bullet.draw() for bullet in bullets]
     ship.draw()
+    aliens.draw(screen)
     pygame.display.flip()
 
 def update_bullets(bullets):
